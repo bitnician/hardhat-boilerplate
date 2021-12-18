@@ -1,70 +1,62 @@
-import 'hardhat-typechain';
-import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-etherscan';
+import * as dotenv from "dotenv";
 
-import env from 'dotenv';
-env.config();
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
 
-const DEFAULT_COMPILER_SETTINGS = {
-  version: '0.8.6',
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 1_000_000,
-    },
-    metadata: {
-      bytecodeHash: 'none',
-    },
-  },
-};
+dotenv.config();
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+function loadAccounts() {
+  return process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [];
+}
 
-export default {
+const config: HardhatUserConfig = {
+  solidity: "0.7.0",
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: false,
-    },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: loadAccounts(),
     },
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: loadAccounts(),
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: loadAccounts(),
     },
     bsctest: {
       url: `https://data-seed-prebsc-1-s2.binance.org:8545/`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: loadAccounts(),
     },
     bsc: {
       url: `https://bsc-dataseed.binance.org/`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: loadAccounts(),
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [`0x${PRIVATE_KEY}`],
-      gas: 1000000,
-      gasPrice: 8000000000,
+      accounts: loadAccounts(),
     },
+    mumbai: {
+      url: `https://rpc-mumbai.maticvigil.com/`,
+      accounts: loadAccounts(),
+      gasPrice: 8000000000, // We need to have a number here. See issue: https://github.com/nomiclabs/hardhat/issues/1828
+    },
+    polygon: {
+      url: `https://polygon-rpc.com`,
+      accounts: loadAccounts(),
+    },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
   },
   etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
-  solidity: {
-    compilers: [DEFAULT_COMPILER_SETTINGS],
-  },
-  watcher: {
-    test: {
-      tasks: [{ command: 'test', params: { testFiles: ['{path}'] } }],
-      files: ['./test/**/*'],
-      verbose: true,
-    },
-  },
 };
+
+export default config;
