@@ -14,7 +14,7 @@ function loadAccounts() {
 }
 
 const config: HardhatUserConfig = {
-  solidity: "0.7.0",
+  solidity: "0.8.0",
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
